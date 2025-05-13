@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Administración general del sistema
+        </p>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <!-- Total de empresas -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-primary/10 rounded-md p-3">
+                        <i class="fas fa-building text-primary text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Total de empresas
+                            </dt>
+                            <dd>
+                                <div class="text-lg font-medium text-gray-900">
+                                    {{ total_companies }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
+                <div class="text-sm">
+                    <a href="{% url 'system:company_list' %}" class="font-medium text-action hover:text-action/80">
+                        Ver todas
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empresas activas -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Empresas activas
+                            </dt>
+                            <dd>
+                                <div class="text-lg font-medium text-gray-900">
+                                    {{ active_companies }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
+                <div class="text-sm">
+                    <a href="{% url 'system:company_list' %}?active=true" class="font-medium text-action hover:text-action/80">
+                        Ver activas
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total de usuarios -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Total de usuarios
+                            </dt>
+                            <dd>
+                                <div class="text-lg font-medium text-gray-900">
+                                    {{ total_users }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
+                <div class="text-sm">
+                    <a href="{% url 'system:user_list' %}" class="font-medium text-action hover:text-action/80">
+                        Ver todos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Empresas recientes -->
+    <div class="mt-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Empresas recientes</h2>
+        
+        {% if recent_companies %}
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+            <ul class="divide-y divide-gray-200">
+                {% for company in recent_companies %}
+                <li>
+                    <a href="{% url 'system:company_detail' company.id %}" class="block hover:bg-gray-50">
+                        <div class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    {% if company.logo %}
+                                    <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="h-10 w-10 rounded-full object-cover">
+                                    {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <i class="fas fa-building text-primary"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <p class="text-sm font-medium text-gray-900">{{ company.name }}</p>
+                                        <p class="text-sm text-gray-500">{{ company.tax_id }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if company.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if company.is_active %}Activa{% else %}Inactiva{% endif %}
+                                    </p>
+                                    <p class="text-sm text-gray-500 ml-4">
+                                        <i class="fas fa-calendar-alt mr-1"></i> {{ company.created_at|date:"d/m/Y" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-white rounded-lg shadow border border-gray-200">
+            <i class="fas fa-building text-gray-400 text-5xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">No hay empresas registradas</h3>
+            <p class="mt-2 text-gray-500">
+                No se encontraron empresas en el sistema.
+            </p>
+            <div class="mt-6">
+                <a href="{% url 'system:company_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-action hover:bg-action/90">
+                    <i class="fas fa-plus-circle mr-2"></i> Crear empresa
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Acciones rápidas -->
+    <div class="mt-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Acciones rápidas</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <a href="{% url 'system:company_create' %}" class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-primary/10 rounded-md p-3">
+                        <i class="fas fa-building text-action text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-base font-medium text-gray-900">Nueva empresa</h3>
+                        <p class="mt-1 text-sm text-gray-500">Crear una nueva empresa</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="{% url 'system:user_create' %}" class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-primary/10 rounded-md p-3">
+                        <i class="fas fa-user-plus text-action text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-base font-medium text-gray-900">Nuevo usuario</h3>
+                        <p class="mt-1 text-sm text-gray-500">Crear un nuevo usuario</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="{% url 'admin:index' %}" class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-primary/10 rounded-md p-3">
+                        <i class="fas fa-cogs text-action text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-base font-medium text-gray-900">Admin Django</h3>
+                        <p class="mt-1 text-sm text-gray-500">Panel de administración</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="{% url 'system:dashboard' %}" class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-primary/10 rounded-md p-3">
+                        <i class="fas fa-tachometer-alt text-action text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-base font-medium text-gray-900">Dashboard</h3>
+                        <p class="mt-1 text-sm text-gray-500">Panel principal</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

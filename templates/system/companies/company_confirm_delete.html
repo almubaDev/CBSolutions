@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Confirma la eliminación de la empresa
+        </p>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg max-w-3xl mx-auto">
+        <div class="px-4 py-5 sm:px-6 bg-red-50 border-b border-red-200">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-red-100 rounded-md p-1">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+                <h3 class="ml-3 text-lg leading-6 font-medium text-red-800">
+                    Confirmar eliminación
+                </h3>
+            </div>
+            <p class="mt-1 max-w-2xl text-sm text-red-700">
+                Esta acción no se puede deshacer.
+            </p>
+        </div>
+        
+        <div class="px-4 py-5 sm:p-6">
+            <div class="sm:flex sm:items-start">
+                <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        ¿Estás seguro de que deseas eliminar esta empresa?
+                    </h3>
+                    <div class="mt-4 p-4 bg-gray-50 rounded-md">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-12 w-12">
+                                {% if object.logo %}
+                                <img class="h-12 w-12 rounded-full object-cover" src="{{ object.logo.url }}" alt="{{ object.name }}">
+                                {% else %}
+                                <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <i class="fas fa-building text-primary"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-base font-medium text-gray-900">{{ object.name }}</h4>
+                                <p class="text-sm text-gray-500">{{ object.tax_id }}</p>
+                                <p class="text-sm text-gray-500">{{ object.users.count }} usuarios asociados</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="rounded-md bg-yellow-50 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-yellow-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-yellow-800">Advertencia</h3>
+                                    <div class="mt-2 text-sm text-yellow-700">
+                                        <p>
+                                            Al eliminar esta empresa, se eliminarán permanentemente todos sus datos y configuraciones, incluyendo:
+                                        </p>
+                                        <ul class="list-disc pl-5 space-y-1 mt-2">
+                                            <li>Todos los usuarios asociados a esta empresa</li>
+                                            <li>Datos de módulos habilitados</li>
+                                            <li>Configuraciones personalizadas</li>
+                                            <li>Toda la información relacionada</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="flex justify-end">
+                        <a href="{% url 'system:company_list' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Eliminar empresa
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

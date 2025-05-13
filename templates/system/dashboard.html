@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Bienvenido al panel de administración
+        </p>
+    </div>
+    
+    <!-- Contenido del Dashboard -->
+    <div class="bg-white shadow rounded-lg border border-gray-200 p-6">
+        {% if user.is_superuser %}
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Panel de Administrador</h2>
+            <p class="text-gray-600">Desde aquí puedes administrar el sistema completo.</p>
+            
+            <!-- Enlaces de administración -->
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <a href="{% url 'system:company_list' %}" class="flex items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-primary/10 p-3 rounded-full">
+                        <i class="fas fa-building text-primary"></i>
+                    </div>
+                    <div class="ml-4">
+                        <span class="text-gray-900 font-medium">Gestionar Empresas</span>
+                    </div>
+                </a>
+                
+                <a href="{% url 'system:user_list' %}" class="flex items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-primary/10 p-3 rounded-full">
+                        <i class="fas fa-users text-primary"></i>
+                    </div>
+                    <div class="ml-4">
+                        <span class="text-gray-900 font-medium">Gestionar Usuarios</span>
+                    </div>
+                </a>
+                
+                <a href="{% url 'admin:index' %}" class="flex items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-primary/10 p-3 rounded-full">
+                        <i class="fas fa-cogs text-primary"></i>
+                    </div>
+                    <div class="ml-4">
+                        <span class="text-gray-900 font-medium">Admin Django</span>
+                    </div>
+                </a>
+            </div>
+        {% else %}
+            <!-- Módulos disponibles para usuarios no superusuarios -->
+            {% if available_modules %}
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Módulos disponibles</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {% for module in available_modules %}
+                    <a href="{{ module.url }}" class="flex items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                        <div class="bg-primary/10 p-3 rounded-full">
+                            <i class="{{ module.icon }} text-primary"></i>
+                        </div>
+                        <div class="ml-4">
+                            <span class="text-gray-900 font-medium">{{ module.name }}</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-10">
+                    <div class="bg-gray-100 inline-block p-4 rounded-full mb-4">
+                        <i class="fas fa-exclamation-circle text-3xl text-gray-500"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">No hay módulos disponibles</h3>
+                    <p class="text-gray-600 mt-2">Tu empresa no tiene módulos activados o ha vencido la suscripción.</p>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <!-- Información de la empresa si existe -->
+    {% if user.company %}
+    <div class="mt-6 bg-white shadow rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Información de la empresa</h2>
+        <div class="flex items-center mb-4">
+            <div class="flex-shrink-0">
+                {% if user.company.logo %}
+                <img src="{{ user.company.logo.url }}" alt="{{ user.company.name }}" class="h-16 w-16 rounded-full object-cover">
+                {% else %}
+                <div class="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <i class="fas fa-building text-primary text-xl"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-medium text-gray-900">{{ user.company.name }}</h3>
+                <p class="text-sm text-gray-600">{{ user.company.business_name }}</p>
+                <p class="text-sm text-gray-600">RUT: {{ user.company.tax_id }}</p>
+            </div>
+        </div>
+        
+        <!-- Estado de la suscripción -->
+        <div class="mt-2 border-t border-gray-200 pt-4">
+            <h4 class="text-base font-medium text-gray-900 mb-2">Estado de la suscripción</h4>
+            {% if user.company.is_subscription_active %}
+                <div class="bg-green-100 text-green-800 p-3 rounded-md flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>Suscripción activa hasta {{ user.company.subscription_end|date:"d/m/Y" }}</span>
+                </div>
+            {% else %}
+                <div class="bg-red-100 text-red-800 p-3 rounded-md flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>Suscripción vencida desde {{ user.company.subscription_end|date:"d/m/Y" }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

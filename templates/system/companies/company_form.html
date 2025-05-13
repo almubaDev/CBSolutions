@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            {% if object %}Actualiza la información de la empresa{% else %}Crea una nueva empresa en el sistema{% endif %}
+        </p>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <form method="post" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Errores del formulario -->
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 m-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Se encontraron los siguientes errores:
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Información básica -->
+            <div class="border-b border-gray-200 px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Información básica
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Datos principales de la empresa
+                </p>
+            </div>
+            
+            <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Nombre -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.name.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Razón Social -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.business_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.business_name.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.business_name }}
+                        {% if form.business_name.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.business_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- RUT/ID Fiscal -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.tax_id.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.tax_id.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.tax_id }}
+                        {% if form.tax_id.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.tax_id.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Es activo -->
+                <div class="sm:col-span-3">
+                    <div class="flex items-center h-full">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.is_active.label }}
+                        </label>
+                    </div>
+                    {% if form.is_active.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Información de contacto -->
+            <div class="border-b border-gray-200 px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Información de contacto
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Datos de contacto de la empresa
+                </p>
+            </div>
+            
+            <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Dirección -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.address.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Ciudad -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.city.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.city }}
+                        {% if form.city.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.city.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Región/Estado -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.state.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.state.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.state }}
+                        {% if form.state.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.state.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- País -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.country.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.country }}
+                        {% if form.country.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.country.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Código Postal -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.postal_code.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.postal_code.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.postal_code }}
+                        {% if form.postal_code.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.postal_code.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Teléfono -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.phone.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Email -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.email.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Sitio Web -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.website.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.website.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.website }}
+                        {% if form.website.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.website.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Personalización -->
+            <div class="border-b border-gray-200 px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Personalización
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Logo y colores corporativos
+                </p>
+            </div>
+            
+            <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Logo -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.logo.label }}
+                    </label>
+                    <div class="mt-1 flex items-center">
+                        {% if object and object.logo %}
+                        <div class="mr-4">
+                            <img src="{{ object.logo.url }}" alt="{{ object.name }}" class="h-16 w-16 rounded-md object-cover">
+                        </div>
+                        {% endif %}
+                        {{ form.logo }}
+                        {% if form.logo.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.logo.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Color Principal -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.primary_color.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.primary_color.label }}
+                    </label>
+                    <div class="mt-1 flex items-center">
+                        {{ form.primary_color }}
+                        <span class="ml-2 text-sm text-gray-500">{{ form.primary_color.help_text }}</span>
+                        {% if form.primary_color.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.primary_color.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Suscripción -->
+            <div class="border-b border-gray-200 px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Suscripción
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Configuración de la suscripción y límites de usuarios
+                </p>
+            </div>
+            
+            <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Máximo de Usuarios -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.max_users.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.max_users.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.max_users }}
+                        {% if form.max_users.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.max_users.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Fin de Suscripción -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.subscription_end.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.subscription_end.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.subscription_end }}
+                        {% if form.subscription_end.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.subscription_end.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Módulos Activos -->
+            <div class="border-b border-gray-200 px-4 py-5 sm:px-6 bg-gray-50">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Módulos Activos
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Seleccione los módulos que estarán disponibles para esta empresa
+                </p>
+            </div>
+            
+            <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Inventario -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.module_inventory }}
+                        <label for="{{ form.module_inventory.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.module_inventory.label }}
+                        </label>
+                    </div>
+                    {% if form.module_inventory.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.module_inventory.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Ventas -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.module_sales }}
+                        <label for="{{ form.module_sales.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.module_sales.label }}
+                        </label>
+                    </div>
+                    {% if form.module_sales.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.module_sales.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Compras -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.module_purchases }}
+                        <label for="{{ form.module_purchases.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.module_purchases.label }}
+                        </label>
+                    </div>
+                    {% if form.module_purchases.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.module_purchases.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Contabilidad -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.module_accounting }}
+                        <label for="{{ form.module_accounting.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.module_accounting.label }}
+                        </label>
+                    </div>
+                    {% if form.module_accounting.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.module_accounting.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- CRM -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.module_crm }}
+                        <label for="{{ form.module_crm.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.module_crm.label }}
+                        </label>
+                    </div>
+                    {% if form.module_crm.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.module_crm.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- RRHH -->
+                <div class="sm:col-span-2">
+                    <div class="flex items-center">
+                        {{ form.module_hrm }}
+                        <label for="{{ form.module_hrm.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.module_hrm.label }}
+                        </label>
+                    </div>
+                    {% if form.module_hrm.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.module_hrm.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Botones -->
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 border-t border-gray-200">
+                <a href="{% url 'system:company_list' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    Cancelar
+                </a>
+                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-action hover:bg-action/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    {% if object %}Actualizar{% else %}Crear{% endif %} empresa
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -31,11 +31,11 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     """Admin para el modelo Product con capacidad de importación/exportación"""
-    list_display = ('name', 'sku', 'category', 'stock', 'min_stock', 'selling_price', 'is_active')
+    list_display = ('name', 'sku', 'category', 'stock', 'min_stock', 'is_active')
     list_filter = ('is_active', 'category', 'company')
     search_fields = ('name', 'description', 'sku', 'barcode')
     readonly_fields = ('stock',)
-    list_editable = ('selling_price', 'min_stock')
+    list_editable = ('min_stock',)
     
     fieldsets = (
         (None, {

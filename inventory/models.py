@@ -107,18 +107,6 @@ class Product(models.Model):
     def is_low_stock(self):
         """Verifica si el producto está por debajo del stock mínimo"""
         return self.stock < self.min_stock
-    
-    def get_profit(self):
-        """Calcula el margen de ganancia por unidad"""
-        if self.cost_price:
-            return self.selling_price - self.cost_price
-        return self.selling_price
-    
-    def get_profit_percentage(self):
-        """Calcula el porcentaje de ganancia"""
-        if self.cost_price and self.cost_price > 0:
-            return ((self.selling_price - self.cost_price) / self.cost_price) * 100
-        return 0
 
 
 class ProductMovement(models.Model):

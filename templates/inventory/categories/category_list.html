@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="md:flex md:items-center md:justify-between mb-6">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold text-gray-900">
+                {{ title }}
+            </h1>
+            <p class="mt-1 text-sm text-gray-600">
+                Gestiona las categorías de productos
+            </p>
+        </div>
+        <div class="mt-4 md:mt-0 md:ml-4">
+            <a href="{% url 'inventory:category_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-action hover:bg-action/90">
+                <i class="fas fa-plus-circle mr-2"></i> Nueva categoría
+            </a>
+        </div>
+    </div>
+    
+    <!-- Búsqueda -->
+    <div class="mb-6">
+        <form method="get" action="{% url 'inventory:category_list' %}" class="mt-2 flex rounded-md shadow-sm">
+            <div class="relative flex-grow">
+                <input type="text" name="q" value="{{ search_query }}" class="focus:ring-action focus:border-action block w-full pl-4 pr-12 py-2 sm:text-sm border-gray-300 rounded-md" placeholder="Buscar por nombre...">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <button type="submit" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            {% if search_query %}
+            <a href="{% url 'inventory:category_list' %}" class="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-times mr-2"></i> Limpiar
+            </a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- Listado de categorías -->
+    {% if categories %}
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Categoría
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Descripción
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Productos
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Estado
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for category, products_count in categories_with_counts %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ category.name }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-500 line-clamp-2">{{ category.description|default:"--" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">
+                            {{ products_count }}
+                            {% if products_count > 0 %}
+                            <a href="{% url 'inventory:product_list' %}?category={{ category.id }}" class="ml-2 text-action hover:text-action/80" title="Ver productos">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if category.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if category.is_active %}Activa{% else %}Inactiva{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'inventory:category_update' category.id %}" class="text-action hover:text-action/80 mr-3">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="{% url 'inventory:category_delete' category.id %}" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash-alt"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg shadow">
+        <div class="flex flex-1 justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Anterior
+            </a>
+            {% endif %}
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative ml-3 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Siguiente
+            </a>
+            {% endif %}
+        </div>
+        
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Mostrando <span class="font-medium">{{ page_obj.start_index }}</span> a <span class="font-medium">{{ page_obj.end_index }}</span> de <span class="font-medium">{{ paginator.count }}</span> resultados
+                </p>
+            </div>
+            
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        <span class="sr-only">Anterior</span>
+                        <i class="fas fa-chevron-left h-5 w-5"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                    {% if page_obj.number == i %}
+                    <span class="relative z-10 inline-flex items-center bg-action px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-action">
+                        {{ i }}
+                    </span>
+                    {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
+                    <a href="?page={{ i }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        {{ i }}
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                        <span class="sr-only">Siguiente</span>
+                        <i class="fas fa-chevron-right h-5 w-5"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <!-- Mensaje si no hay categorías -->
+    <div class="text-center py-12 bg-white rounded-lg shadow border border-gray-200">
+        <i class="fas fa-tag text-gray-400 text-5xl mb-4"></i>
+        
+        {% if search_query %}
+        <h3 class="text-lg font-medium text-gray-900">No se encontraron resultados</h3>
+        <p class="mt-2 text-gray-500">
+            No se encontraron categorías que coincidan con "{{ search_query }}".
+        </p>
+        <div class="mt-6">
+            <a href="{% url 'inventory:category_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-times mr-2"></i> Limpiar búsqueda
+            </a>
+        </div>
+        {% else %}
+        <h3 class="text-lg font-medium text-gray-900">No hay categorías</h3>
+        <p class="mt-2 text-gray-500">
+            Aún no has creado ninguna categoría.
+        </p>
+        <div class="mt-6">
+            <a href="{% url 'inventory:category_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-action hover:bg-action/90">
+                <i class="fas fa-plus-circle mr-2"></i> Crear categoría
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Botón para volver al dashboard -->
+    <div class="mt-6 text-center">
+        <a href="{% url 'inventory:dashboard' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-2"></i> Volver al dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

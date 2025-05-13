@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            {% if object %}Actualiza la información del producto{% else %}Crea un nuevo producto en el inventario{% endif %}
+        </p>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+        <form method="post" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Errores del formulario -->
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 m-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Se encontraron los siguientes errores:
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="md:grid md:grid-cols-4 md:gap-6">
+                <!-- Información básica -->
+                <div class="md:col-span-3">
+                    <div class="px-4 py-5 bg-gray-50 sm:px-6 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            Información básica
+                        </h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                            Datos principales del producto
+                        </p>
+                    </div>
+                    
+                    <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <!-- Nombre -->
+                        <div class="sm:col-span-4">
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.name.label }}
+                            </label>
+                            <div class="mt-1">
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Categoría -->
+                        <div class="sm:col-span-2">
+                            <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.category.label }}
+                            </label>
+                            <div class="mt-1">
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Descripción -->
+                        <div class="sm:col-span-6">
+                            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                {{ form.description.label }}
+                            </label>
+                            <div class="mt-1">
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Imagen -->
+                <div class="md:col-span-1">
+                    <div class="px-4 py-5 bg-gray-50 sm:px-6 border-b border-gray-200">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            Imagen
+                        </h3>
+                    </div>
+                    
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="space-y-4">
+                            <div class="text-center">
+                                {% if object and object.image %}
+                                <img src="{{ object.image.url }}" alt="{{ object.name }}" class="h-32 w-32 object-cover mx-auto rounded">
+                                {% else %}
+                                <div class="h-32 w-32 mx-auto bg-primary/10 rounded flex items-center justify-center">
+                                    <i class="fas fa-image text-primary text-3xl"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                    {{ form.image.label }}
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.image }}
+                                    {% if form.image.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ form.image.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Códigos -->
+            <div>
+                <div class="px-4 py-5 bg-gray-50 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Códigos
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        Códigos de identificación del producto
+                    </p>
+                </div>
+                
+                <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <!-- SKU -->
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.sku.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.sku.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.sku }}
+                            {% if form.sku.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.sku.errors.0 }}</p>
+                            {% else %}
+                            <p class="mt-1 text-sm text-gray-500">Código único interno de referencia (opcional).</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Código de barras -->
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.barcode.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.barcode.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.barcode }}
+                            {% if form.barcode.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.barcode.errors.0 }}</p>
+                            {% else %}
+                            <p class="mt-1 text-sm text-gray-500">Código de barras del producto (opcional).</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Precios -->
+            <div>
+                <div class="px-4 py-5 bg-gray-50 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Precios
+                    </h3>
+                </div>
+                
+                <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <!-- Precio de costo -->
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.cost_price.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.cost_price.label }}
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.cost_price }}
+                        </div>
+                        {% if form.cost_price.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.cost_price.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Precio de venta -->
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.selling_price.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.selling_price.label }}
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.selling_price }}
+                        </div>
+                        {% if form.selling_price.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.selling_price.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stock -->
+            <div>
+                <div class="px-4 py-5 bg-gray-50 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Gestión de stock
+                    </h3>
+                </div>
+                
+                <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-9">
+                    {% if object %}
+                    <!-- Stock actual (solo en edición) -->
+                    <div class="sm:col-span-3">
+                        <label class="block text-sm font-medium text-gray-700">
+                            Stock actual
+                        </label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="text" disabled value="{{ object.stock }}" class="bg-gray-100 shadow-sm focus:ring-action focus:border-action block w-full sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">Para modificar el stock, use la opción "Registrar movimiento".</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Stock mínimo -->
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.min_stock.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.min_stock.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.min_stock }}
+                            {% if form.min_stock.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.min_stock.errors.0 }}</p>
+                            {% else %}
+                            <p class="mt-1 text-sm text-gray-500">Cantidad mínima recomendada.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Stock máximo -->
+                    <div class="sm:col-span-3">
+                        <label for="{{ form.max_stock.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.max_stock.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.max_stock }}
+                            {% if form.max_stock.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.max_stock.errors.0 }}</p>
+                            {% else %}
+                            <p class="mt-1 text-sm text-gray-500">Cantidad máxima recomendada (opcional).</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Ubicación -->
+                    <div class="sm:col-span-{% if object %}3{% else %}6{% endif %}">
+                        <label for="{{ form.location.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.location.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.location.errors.0 }}</p>
+                            {% else %}
+                            <p class="mt-1 text-sm text-gray-500">Ubicación física del producto (opcional).</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estado -->
+            <div class="px-4 py-5 sm:p-6 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-start">
+                    {{ form.is_active }}
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_active.id_for_label }}" class="font-medium text-gray-700">{{ form.is_active.label }}</label>
+                        <p class="text-gray-500">Los productos inactivos no aparecerán en las listas de selección.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botones -->
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 border-t border-gray-200">
+                <a href="{% if object %}{% url 'inventory:product_detail' object.id %}{% else %}{% url 'inventory:product_list' %}{% endif %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    Cancelar
+                </a>
+                
+                {% if not object %}
+                <button type="submit" name="save_and_add_movement" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Guardar y añadir stock
+                </button>
+                {% endif %}
+                
+                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-action hover:bg-action/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    {% if object %}Actualizar{% else %}Crear{% endif %} producto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

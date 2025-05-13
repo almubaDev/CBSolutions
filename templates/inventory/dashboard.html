@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Resumen del inventario y actividad reciente
+        </p>
+    </div>
+    
+    <!-- Tarjetas de estadísticas -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total de productos -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-primary/10 rounded-md p-3">
+                        <i class="fas fa-boxes text-primary text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Productos
+                            </dt>
+                            <dd>
+                                <div class="text-lg font-medium text-gray-900">
+                                    {{ products_count }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
+                <div class="text-sm">
+                    <a href="{% url 'inventory:product_list' %}" class="font-medium text-action hover:text-action/80">
+                        Ver todos
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total de categorías -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                        <i class="fas fa-tag text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Categorías
+                            </dt>
+                            <dd>
+                                <div class="text-lg font-medium text-gray-900">
+                                    {{ categories_count }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
+                <div class="text-sm">
+                    <a href="{% url 'inventory:category_list' %}" class="font-medium text-action hover:text-action/80">
+                        Ver todas
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Productos con stock bajo -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Stock bajo
+                            </dt>
+                            <dd>
+                                <div class="text-lg font-medium text-gray-900">
+                                    {{ low_stock_count }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
+                <div class="text-sm">
+                    <a href="{% url 'inventory:product_list' %}?stock_status=low" class="font-medium text-action hover:text-action/80">
+                        Ver detalles
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Productos sin stock -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-red-100 rounded-md p-3">
+                        <i class="fas fa-times-circle text-red-600 text-xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Sin stock
+                            </dt>
+                            <dd>
+                                <div class="text-lg font-medium text-gray-900">
+                                    {{ out_of_stock_count }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t border-gray-200">
+                <div class="text-sm">
+                    <a href="{% url 'inventory:product_list' %}?stock_status=out" class="font-medium text-action hover:text-action/80">
+                        Ver detalles
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Acciones rápidas -->
+    <div class="mb-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Acciones rápidas</h2>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'inventory:product_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-action hover:bg-action/90">
+                <i class="fas fa-plus-circle mr-2"></i> Nuevo producto
+            </a>
+            <a href="{% url 'inventory:category_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-action hover:bg-action/90">
+                <i class="fas fa-plus-circle mr-2"></i> Nueva categoría
+            </a>
+            <a href="{% url 'inventory:stock_adjustment' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-action hover:bg-action/90">
+                <i class="fas fa-sync-alt mr-2"></i> Ajustar stock
+            </a>
+        </div>
+    </div>
+    
+    <!-- Contenido de dos columnas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Productos con stock bajo -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+            <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Productos con stock bajo
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Productos que requieren reposición
+                </p>
+            </div>
+            
+            {% if low_stock_products %}
+                <ul class="divide-y divide-gray-200">
+                    {% for product in low_stock_products %}
+                    <li class="px-4 py-4 hover:bg-gray-50">
+                        <a href="{% url 'inventory:product_detail' product.id %}" class="block">
+                            <div class="flex justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-action truncate">{{ product.name }}</p>
+                                    <p class="text-sm text-gray-500">{{ product.category.name }}</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Stock: {{ product.stock }} / Min: {{ product.min_stock }}
+                                    </span>
+                                    <a href="{% url 'inventory:product_add_movement' product.id %}" class="ml-3 text-action hover:text-action/80" title="Añadir stock">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                {% if low_stock_count > 5 %}
+                <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 text-center">
+                    <a href="{% url 'inventory:product_list' %}?stock_status=low" class="text-sm font-medium text-action hover:text-action/80">
+                        Ver todos los productos con stock bajo
+                    </a>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>
+                    <p class="text-gray-600">No hay productos con stock bajo</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Movimientos recientes -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
+            <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Movimientos recientes
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Últimas entradas y salidas de inventario
+                </p>
+            </div>
+            
+            {% if recent_movements %}
+                <ul class="divide-y divide-gray-200">
+                    {% for movement in recent_movements %}
+                    <li class="px-4 py-4 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    <a href="{% url 'inventory:product_detail' movement.product.id %}" class="text-action hover:underline">
+                                        {{ movement.product.name }}
+                                    </a>
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {% if movement.type == 'IN' %}
+                                    <span class="text-green-600">+{{ movement.quantity }}</span>
+                                    {% else %}
+                                    <span class="text-red-600">-{{ movement.quantity }}</span>
+                                    {% endif %}
+                                    | {{ movement.get_reason_display }}
+                                </p>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ movement.created_at|date:"d/m/Y H:i" }}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="bg-gray-50 px-4 py-3 border-t border-gray-200 text-center">
+                    <a href="{% url 'inventory:movement_list' %}" class="text-sm font-medium text-action hover:text-action/80">
+                        Ver todos los movimientos
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-inbox text-gray-400 text-4xl mb-3"></i>
+                    <p class="text-gray-600">No hay movimientos recientes</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

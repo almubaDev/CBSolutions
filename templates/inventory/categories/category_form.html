@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            {% if object %}Actualiza la información de la categoría{% else %}Crea una nueva categoría de productos{% endif %}
+        </p>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg max-w-3xl mx-auto">
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Errores del formulario -->
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 m-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Se encontraron los siguientes errores:
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Campos del formulario -->
+            <div class="px-4 py-5 sm:p-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Nombre -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.name.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Descripción -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.description.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% else %}
+                        <p class="mt-1 text-sm text-gray-500">Breve descripción de la categoría (opcional).</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Estado (Activo) -->
+                <div class="sm:col-span-6">
+                    <div class="flex items-center">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            {{ form.is_active.label }}
+                        </label>
+                    </div>
+                    {% if form.is_active.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                    {% else %}
+                    <p class="mt-1 text-sm text-gray-500">
+                        Las categorías inactivas no aparecerán en los listados al crear productos.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Botones -->
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 border-t border-gray-200">
+                <a href="{% url 'inventory:category_list' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    Cancelar
+                </a>
+                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-action hover:bg-action/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    {% if object %}Actualizar{% else %}Crear{% endif %} categoría
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -8,7 +8,7 @@ urlpatterns = [
     path('system/', include('system.urls')),
     path('inventory/', include('inventory.urls')),
     path('', include('system.urls')),
-
+]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

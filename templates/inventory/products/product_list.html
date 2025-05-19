@@ -15,10 +15,38 @@
                 Gestiona el catálogo de productos
             </p>
         </div>
-        <div class="mt-4 md:mt-0 md:ml-4">
+        <div class="mt-4 md:mt-0 md:ml-4 flex flex-wrap gap-2">
             <a href="{% url 'inventory:product_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-action hover:bg-action/90">
                 <i class="fas fa-plus-circle mr-2"></i> Nuevo producto
             </a>
+            
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i class="fas fa-file-export mr-2"></i> Exportar
+                    <i class="fas fa-chevron-down ml-1"></i>
+                </button>
+                <div x-show="open" @click.away="open = false" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                    <div class="py-1" role="menu" aria-orientation="vertical">
+                        <!-- Exportación avanzada -->
+                        <a href="{% url 'inventory:export_inventory' %}{% if search_query or selected_category or stock_status %}?{% if search_query %}search_query={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if stock_status %}&stock_status={{ stock_status }}{% endif %}{% endif %}" 
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                            <i class="fas fa-cog mr-2"></i> Exportación avanzada
+                        </a>
+                        
+                        <!-- Exportación rápida a Excel -->
+                        <a href="{% url 'inventory:generate_export' %}?export_format=excel{% if search_query %}&search_query={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if stock_status %}&stock_status={{ stock_status }}{% endif %}" 
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                            <i class="fas fa-file-excel text-green-600 mr-2"></i> Exportar a Excel
+                        </a>
+                        
+                        <!-- Exportación rápida a PDF -->
+                        <a href="{% url 'inventory:generate_export' %}?export_format=pdf{% if search_query %}&search_query={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if stock_status %}&stock_status={{ stock_status }}{% endif %}" 
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                            <i class="fas fa-file-pdf text-red-600 mr-2"></i> Exportar a PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -245,7 +273,6 @@
             </a>
             {% endif %}
         </div>
-        
         <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div>
                 <p class="text-sm text-gray-700">
@@ -322,4 +349,40 @@
         </a>
     </div>
 </div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    // Script para manejar el menú desplegable de exportación
+    document.addEventListener('DOMContentLoaded', function() {
+        // Si Alpine.js no está disponible, agregar comportamiento manual para el menú desplegable
+        if (typeof Alpine === 'undefined') {
+            const exportButton = document.querySelector('button[type="button"]');
+            const exportMenu = document.querySelector('.origin-top-right');
+            
+            if (exportButton && exportMenu) {
+                exportButton.addEventListener('click', function() {
+                    const isHidden = exportMenu.classList.contains('hidden');
+                    if (isHidden) {
+                        exportMenu.classList.remove('hidden');
+                    } else {
+                        exportMenu.classList.add('hidden');
+                    }
+                });
+                
+                // Cerrar al hacer clic fuera
+                document.addEventListener('click', function(event) {
+                    if (!exportButton.contains(event.target) && !exportMenu.contains(event.target)) {
+                        exportMenu.classList.add('hidden');
+                    }
+                });
+                
+                // Inicialmente oculto
+                if (!exportMenu.classList.contains('hidden')) {
+                    exportMenu.classList.add('hidden');
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

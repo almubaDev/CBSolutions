@@ -111,9 +111,9 @@
                     <td class="px-6 py-4">
                         <div class="flex flex-wrap gap-1">
                             {% if company.module_inventory %}
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            <a href="{% url 'inventory:dashboard' %}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                 Inventario
-                            </span>
+                            </a>
                             {% endif %}
                             
                             {% if company.module_sales %}

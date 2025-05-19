@@ -24,4 +24,11 @@ urlpatterns = [
     # Movimientos
     path('movements/', views.MovementListView.as_view(), name='movement_list'),
     path('stock-adjustment/', views.stock_adjustment, name='stock_adjustment'),
+    
+    # Exportación de inventario
+    path('export/', views.export_inventory, name='export_inventory'),
+    path('export/preview/', views.export_preview, name='export_preview'),
+    path('export/generate/', views.generate_export, name='generate_export'),
+    path('export/status/', views.export_status, name='export_status'),
+    
 ]

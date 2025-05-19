@@ -98,7 +98,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             if company.module_inventory:
                 modules.append({
                     'name': _('Inventario'),
-                    'url': '#',  # Se actualizará cuando exista la app
+                    'url': '/inventory/',  # Se actualizará cuando exista la app
                     'icon': 'fas fa-boxes'
                 })
                 

@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar/ocultar opciones según el formato seleccionado
+        function updateFormOptions() {
+            var format = document.querySelector('input[name="export_format"]:checked').value;
+            
+            // Opciones específicas de Excel
+            document.getElementById('excel-options').style.display = format === 'excel' ? 'block' : 'none';
+            
+            // Opciones específicas de PDF
+            document.getElementById('pdf-options').style.display = format === 'pdf' ? 'block' : 'none';
+            
+            // Actualizar estado de las opciones de imágenes
+            document.getElementById('id_include_images').disabled = format !== 'pdf';
+        }
+        
+        // Configurar event listeners
+        document.querySelectorAll('input[name="export_format"]').forEach(function(radio) {
+            radio.addEventListener('change', updateFormOptions);
+        });
+        
+        // Inicializar
+        updateFormOptions();
+        
+        // Acordeón para opciones avanzadas
+        document.getElementById('toggle-advanced').addEventListener('click', function() {
+            var advancedOptions = document.getElementById('advanced-options');
+            var icon = this.querySelector('i');
+            
+            if (advancedOptions.style.display === 'none' || !advancedOptions.style.display) {
+                advancedOptions.style.display = 'block';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                advancedOptions.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Configura y descarga datos del inventario
+        </p>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Errores del formulario -->
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4 m-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Se encontraron los siguientes errores:
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Formato de exportación -->
+            <div class="px-4 py-5 sm:p-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Formato de exportación
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="flex items-center space-x-3 p-4 border rounded-lg {% if form.export_format.value == 'excel' %}border-action bg-action/5{% else %}border-gray-200{% endif %}">
+                        <input type="radio" id="id_export_format_excel" name="export_format" value="excel" {% if form.export_format.value == 'excel' %}checked{% endif %} class="form-check-input">
+                        <label for="id_export_format_excel" class="flex flex-col">
+                            <span class="text-lg font-medium flex items-center">
+                                <i class="fas fa-file-excel text-green-600 mr-2"></i> Excel
+                            </span>
+                            <span class="text-sm text-gray-500 mt-1">
+                                Ideal para analizar datos, filtrar y realizar cálculos
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3 p-4 border rounded-lg {% if form.export_format.value == 'pdf' %}border-action bg-action/5{% else %}border-gray-200{% endif %}">
+                        <input type="radio" id="id_export_format_pdf" name="export_format" value="pdf" {% if form.export_format.value == 'pdf' %}checked{% endif %} class="form-check-input">
+                        <label for="id_export_format_pdf" class="flex flex-col">
+                            <span class="text-lg font-medium flex items-center">
+                                <i class="fas fa-file-pdf text-red-600 mr-2"></i> PDF
+                            </span>
+                            <span class="text-sm text-gray-500 mt-1">
+                                Ideal para imprimir, archivar o compartir como documento
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="px-4 py-5 sm:p-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Filtros
+                </h3>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Categoría -->
+                    <div>
+                        <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ form.category.label }}
+                        </label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Estado de stock -->
+                    <div>
+                        <label for="{{ form.stock_status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ form.stock_status.label }}
+                        </label>
+                        {{ form.stock_status }}
+                        {% if form.stock_status.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.stock_status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Búsqueda -->
+                    <div>
+                        <label for="{{ form.search_query.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ form.search_query.label }}
+                        </label>
+                        {{ form.search_query }}
+                        {% if form.search_query.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.search_query.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Opciones de contenido -->
+            <div class="px-4 py-5 sm:p-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Opciones de contenido
+                </h3>
+                
+                <div class="space-y-4">
+                    <!-- Incluir movimientos -->
+                    <div class="flex items-start">
+                        {{ form.include_movements }}
+                        <div class="ml-3">
+                            <label for="{{ form.include_movements.id_for_label }}" class="font-medium text-gray-700">
+                                {{ form.include_movements.label }}
+                            </label>
+                            <p class="text-sm text-gray-500">{{ form.include_movements.help_text }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Incluir imágenes -->
+                    <div class="flex items-start">
+                        {{ form.include_images }}
+                        <div class="ml-3">
+                            <label for="{{ form.include_images.id_for_label }}" class="font-medium text-gray-700">
+                                {{ form.include_images.label }}
+                            </label>
+                            <p class="text-sm text-gray-500">{{ form.include_images.help_text }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Incluir encabezado y pie de página -->
+                    <div class="flex items-start">
+                        {{ form.include_header_footer }}
+                        <div class="ml-3">
+                            <label for="{{ form.include_header_footer.id_for_label }}" class="font-medium text-gray-700">
+                                {{ form.include_header_footer.label }}
+                            </label>
+                            <p class="text-sm text-gray-500">{{ form.include_header_footer.help_text }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Opciones específicas de Excel -->
+                <div id="excel-options" class="mt-6 border-t border-gray-200 pt-4">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Columnas a incluir</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {% for checkbox in form.columns %}
+                        <div class="flex items-start">
+                            {{ checkbox.tag }}
+                            <label for="{{ checkbox.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                                {{ checkbox.choice_label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.columns.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.columns.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Opciones específicas de PDF -->
+                <div id="pdf-options" class="mt-6 border-t border-gray-200 pt-4">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Opciones de PDF</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Tamaño de página -->
+                        <div>
+                            <label for="{{ form.page_size.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.page_size.label }}
+                            </label>
+                            {{ form.page_size }}
+                            {% if form.page_size.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.page_size.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Orientación -->
+                        <div>
+                            <label for="{{ form.orientation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.orientation.label }}
+                            </label>
+                            {{ form.orientation }}
+                            {% if form.orientation.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.orientation.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Marca de agua -->
+                        <div class="sm:col-span-2 flex items-start">
+                            {{ form.add_watermark }}
+                            <div class="ml-3">
+                                <label for="{{ form.add_watermark.id_for_label }}" class="font-medium text-gray-700">
+                                    {{ form.add_watermark.label }}
+                                </label>
+                                <p class="text-sm text-gray-500">{{ form.add_watermark.help_text }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Opciones avanzadas -->
+            <div class="px-4 py-3 sm:px-6 border-b border-gray-200">
+                <button type="button" id="toggle-advanced" class="flex items-center text-sm font-medium text-action hover:text-action/80 focus:outline-none">
+                    <i class="fas fa-chevron-down mr-1"></i> Opciones avanzadas
+                </button>
+                
+                <div id="advanced-options" class="mt-4 space-y-4" style="display: none;">
+                    <!-- Procesamiento asíncrono -->
+                    <div class="flex items-start">
+                        {{ form.process_async }}
+                        <div class="ml-3">
+                            <label for="{{ form.process_async.id_for_label }}" class="font-medium text-gray-700">
+                                {{ form.process_async.label }}
+                            </label>
+                            <p class="text-sm text-gray-500">{{ form.process_async.help_text }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Usar caché -->
+                    <div class="flex items-start">
+                        {{ form.use_cache }}
+                        <div class="ml-3">
+                            <label for="{{ form.use_cache.id_for_label }}" class="font-medium text-gray-700">
+                                {{ form.use_cache.label }}
+                            </label>
+                            <p class="text-sm text-gray-500">{{ form.use_cache.help_text }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botones -->
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 border-t border-gray-200">
+                <a href="{% url 'inventory:product_list' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    Cancelar
+                </a>
+                
+                <button type="submit" name="preview" class="ml-3 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    <i class="fas fa-eye mr-2"></i> Vista previa
+                </button>
+                
+                <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-action hover:bg-action/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-action">
+                    <i class="fas fa-download mr-2"></i> Exportar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

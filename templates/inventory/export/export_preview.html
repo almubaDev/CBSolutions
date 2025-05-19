@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - CBSoluciones{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Encabezado -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {{ title }}
+        </h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Vista previa de los datos a exportar (mostrando {{ products|length }} de {{ total_products }} productos)
+        </p>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Resumen de exportación
+            </h3>
+        </div>
+        
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 md:grid-cols-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Formato</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if export_format == 'excel' %}
+                        <i class="fas fa-file-excel text-green-600 mr-1"></i> Excel
+                        {% else %}
+                        <i class="fas fa-file-pdf text-red-600 mr-1"></i> PDF
+                        {% endif %}
+                    </dd>
+                </div>
+                
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Total de productos</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ total_products }}</dd>
+                </div>
+                
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Filtros aplicados</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if form_data.category %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 mr-1">
+                            Categoría: {{ form_data.category.name }}
+                        </span>
+                        {% endif %}
+                        
+                        {% if form_data.stock_status %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 mr-1">
+                            {% if form_data.stock_status == 'low' %}
+                            Stock bajo
+                            {% elif form_data.stock_status == 'out' %}
+                            Sin stock
+                            {% elif form_data.stock_status == 'ok' %}
+                            Stock adecuado
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                        
+                        {% if form_data.search_query %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                            Búsqueda: "{{ form_data.search_query }}"
+                        </span>
+                        {% endif %}
+                        
+                        {% if not form_data.category and not form_data.stock_status and not form_data.search_query %}
+                        Sin filtros
+                        {% endif %}
+                    </dd>
+                </div>
+                
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Opciones adicionales</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if form_data.include_movements %}
+                        <div class="flex items-center text-gray-600 mb-1">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i> Incluir movimientos
+                        </div>
+                        {% endif %}
+                        
+                        {% if form_data.include_images and export_format == 'pdf' %}
+                        <div class="flex items-center text-gray-600 mb-1">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i> Incluir imágenes
+                        </div>
+                        {% endif %}
+                        
+                        {% if form_data.add_watermark and export_format == 'pdf' %}
+                        <div class="flex items-center text-gray-600 mb-1">
+                            <i class="fas fa-check-circle text-green-500 mr-1"></i> Añadir marca de agua
+                        </div>
+                        {% endif %}
+                        
+                        {% if not form_data.include_movements and not form_data.include_images and not form_data.add_watermark %}
+                        Ninguna
+                        {% endif %}
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+    
+    <!-- Vista previa de productos -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Vista previa de datos
+            </h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Mostrando los primeros productos que se incluirán en la exportación
+            </p>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nombre
+                        </th>
+                        
+                        {% if 'sku' in columns %}
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            SKU
+                        </th>
+                        {% endif %}
+                        
+                        {% if 'category' in columns %}
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Categoría
+                        </th>
+                        {% endif %}
+                        
+                        {% if 'stock' in columns %}
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Stock
+                        </th>
+                        {% endif %}
+                        
+                        {% if 'cost_price' in columns %}
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Precio costo
+                        </th>
+                        {% endif %}
+                        
+                        {% if 'selling_price' in columns %}
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Precio venta
+                        </th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for product in products %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    {% if product.image %}
+                                    <img class="h-10 w-10 rounded-full object-cover" src="{{ product.image.url }}" alt="{{ product.name }}">
+                                    {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <i class="fas fa-box text-primary"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ product.name }}
+                                    </div>
+                                    {% if not product.is_active %}
+                                    <div class="text-xs text-red-600">Inactivo</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        
+                        {% if 'sku' in columns %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ product.sku|default:"-" }}
+                        </td>
+                        {% endif %}
+                        
+                        {% if 'category' in columns %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ product.category.name }}
+                        </td>
+                        {% endif %}
+                        
+                        {% if 'stock' in columns %}
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if product.stock == 0 %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                Sin stock
+                            </span>
+                            {% elif product.stock < product.min_stock %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                {{ product.stock }}
+                            </span>
+                            {% else %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                {{ product.stock }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        
+                        {% if 'cost_price' in columns %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${{ product.cost_price }}
+                        </td>
+                        {% endif %}
+                        
+                        {% if 'selling_price' in columns %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${{ product.selling_price }}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if total_products > products|length %}
+        <div class="px-4 py-3 bg-gray-50 text-center border-t border-gray-200">
+            <p class="text-sm text-gray-600">
+                ... y {{ total_products|add:"-15" }} productos más.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Botones de acción -->
+    <div class="mt-6 flex justify-end space-x-3">
+        <a href="{% url 'inventory:export_inventory' %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-2"></i> Volver al formulario
+        </a>
+        
+        <form method="post" action="{% url 'inventory:generate_export' %}">
+            {% csrf_token %}
+            
+            <!-- Campos ocultos para pasar los datos del formulario -->
+            {% for key, value in form_data.items %}
+                {% if key == 'category' and value %}
+                <input type="hidden" name="{{ key }}" value="{{ value.id }}">
+                {% elif key == 'columns' %}
+                    {% for col in value %}
+                    <input type="hidden" name="{{ key }}" value="{{ col }}">
+                    {% endfor %}
+                {% elif value == True %}
+                <input type="hidden" name="{{ key }}" value="on">
+                {% elif value %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            
+            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-action hover:bg-action/90">
+                <i class="fas fa-download mr-2"></i> Confirmar y exportar
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Inventario</title>
+    <style>
+        @page {
+            size: {{ page_size }} {{ orientation }};
+            margin: 2cm;
+            @frame header {
+                -pdf-frame-content: headerContent;
+                top: 0.5cm;
+                margin-left: 2cm;
+                margin-right: 2cm;
+                height: 3cm;
+            }
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 0.5cm;
+                margin-left: 2cm;
+                margin-right: 2cm;
+                height: 1cm;
+            }
+        }
+        
+        {% if add_watermark %}
+        body::before {
+            content: "{{ company.name }} - Generado {{ generated_at|date:'d/m/Y H:i' }} por {{ user.get_full_name|default:user.email }}";
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: -1;
+            
+            color: rgba(0, 0, 0, 0.1);
+            font-size: 60px;
+            font-weight: bold;
+            transform: rotate(-45deg);
+            transform-origin: 50% 50%;
+            text-align: center;
+            line-height: 150%;
+        }
+        {% endif %}
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        h1 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #22346e;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 16px;
+            font-weight: bold;
+            color: #22346e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th {
+            background-color: #22346e;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px;
+            font-size: 11px;
+        }
+        
+        td {
+            border-bottom: 1px solid #ddd;
+            padding: 8px;
+            font-size: 10px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .logo {
+            max-height: 60px;
+            max-width: 200px;
+        }
+        
+        .company-info {
+            float: right;
+            text-align: right;
+            font-size: 11px;
+        }
+        
+        .header-title {
+            clear: both;
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .filters {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .filter-tag {
+            display: inline-block;
+            background-color: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        
+        .product-image {
+            max-width: 50px;
+            max-height: 50px;
+        }
+        
+        .footer {
+            font-size: 9px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .page-number:before {
+            content: "Página " counter(page) " de " counter(pages);
+        }
+        
+        /* Stock status styles */
+        .stock-normal {
+            color: #34D399;
+            font-weight: bold;
+        }
+        
+        .stock-low {
+            color: #F59E0B;
+            font-weight: bold;
+        }
+        
+        .stock-out {
+            color: #EF4444;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    {% if include_header_footer %}
+    <!-- Header -->
+    <div id="headerContent">
+        <div style="height: 60px; width: 100%;">
+            {% if company and company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="logo">
+            {% else %}
+            <div style="font-size: 24px; font-weight: bold; color: #22346e;">CBSoluciones</div>
+            {% endif %}
+            
+            <div class="company-info">
+                {% if company %}
+                <div><strong>{{ company.name }}</strong></div>
+                <div>{{ company.tax_id }}</div>
+                {% if company.phone %}
+                <div>Tel: {{ company.phone }}</div>
+                {% endif %}
+                {% else %}
+                <div><strong>Administrador del sistema</strong></div>
+                {% endif %}
+                <div>Fecha: {{ generated_at|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+        
+        <div class="header-title">
+            <h1>REPORTE DE INVENTARIO</h1>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            Filtros:
+            {% if category %}
+            <span class="filter-tag">Categoría: {{ category.name }}</span>
+            {% endif %}
+            
+            {% if stock_status %}
+            <span class="filter-tag">
+                {% if stock_status == 'low' %}
+                Stock bajo
+                {% elif stock_status == 'out' %}
+                Sin stock
+                {% elif stock_status == 'ok' %}
+                Stock adecuado
+                {% endif %}
+            </span>
+            {% endif %}
+            
+            {% if search_query %}
+            <span class="filter-tag">Búsqueda: "{{ search_query }}"</span>
+            {% endif %}
+            
+            {% if not category and not stock_status and not search_query %}
+            <span class="filter-tag">Todos los productos</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div id="footerContent">
+        <div class="footer">
+            <div>Generado por: {{ user.get_full_name|default:user.email }} - {{ generated_at|date:"d/m/Y H:i" }}</div>
+            <div class="page-number"></div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <div>
+        <!-- Products Table -->
+        <table>
+            <thead>
+                <tr>
+                    {% if include_images %}
+                    <th width="10%">Imagen</th>
+                    {% endif %}
+                    <th width="25%">Producto</th>
+                    <th width="15%">SKU</th>
+                    <th width="15%">Categoría</th>
+                    <th width="10%">Stock</th>
+                    <th width="10%">Mínimo</th>
+                    <th width="12%">Precio costo</th>
+                    <th width="13%">Precio venta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    {% if include_images %}
+                    <td style="text-align: center;">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                        {% else %}
+                        <div style="width: 30px; height: 30px; margin: 0 auto; background-color: #f0f0f0; border-radius: 50%; text-align: center; line-height: 30px;">
+                            <span style="color: #666;">N/D</span>
+                        </div>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    <td>
+                        <strong>{{ product.name }}</strong>
+                        {% if not product.is_active %}
+                        <br><span style="color: #EF4444; font-size: 9px;">(Inactivo)</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.sku|default:"-" }}</td>
+                    <td>{{ product.category.name }}</td>
+                    <td style="text-align: center;">
+                        {% if product.stock == 0 %}
+                        <span class="stock-out">{{ product.stock }}</span>
+                        {% elif product.stock < product.min_stock %}
+                        <span class="stock-low">{{ product.stock }}</span>
+                        {% else %}
+                        <span class="stock-normal">{{ product.stock }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">{{ product.min_stock }}</td>
+                    <td style="text-align: right;">${{ product.cost_price }}</td>
+                    <td style="text-align: right;">${{ product.selling_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if include_movements %}
+        <div style="page-break-before: always;"></div>
+        
+        <h2>Historial de Movimientos</h2>
+        <p>Últimos movimientos de los productos seleccionados (hasta 50 registros):</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th width="25%">Producto</th>
+                    <th width="10%">Tipo</th>
+                    <th width="10%">Cantidad</th>
+                    <th width="15%">Motivo</th>
+                    <th width="15%">Referencia</th>
+                    <th width="15%">Fecha</th>
+                    <th width="20%">Usuario</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td>{{ movement.product.name }}</td>
+                    <td>
+                        {% if movement.type == 'IN' %}
+                        <span style="color: #34D399; font-weight: bold;">Entrada</span>
+                        {% else %}
+                        <span style="color: #EF4444; font-weight: bold;">Salida</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">{{ movement.quantity }}</td>
+                    <td>{{ movement.get_reason_display }}</td>
+                    <td>{{ movement.reference|default:"-" }}</td>
+                    <td>{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ movement.created_by.get_full_name|default:movement.created_by.email }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center;">No hay movimientos registrados para los productos seleccionados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        
+        <!-- Summary Information -->
+        <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+            <p><strong>Resumen:</strong></p>
+            <table style="width: 50%;">
+                <tr>
+                    <td>Total de productos:</td>
+                    <td style="text-align: right; font-weight: bold;">{{ products|length }}</td>
+                </tr>
+                <tr>
+                    <td>Productos con stock bajo:</td>
+                    <td style="text-align: right; font-weight: bold; color: #F59E0B;">{{ low_stock_count }}</td>
+                </tr>
+                <tr>
+                    <td>Productos sin stock:</td>
+                    <td style="text-align: right; font-weight: bold; color: #EF4444;">{{ out_of_stock_count }}</td>
+                </tr>
+                <tr>
+                    <td>Valor total del inventario (costo):</td>
+                    <td style="text-align: right; font-weight: bold;">${{ total_value_cost }}</td>
+                </tr>
+                <tr>
+                    <td>Valor total del inventario (venta):</td>
+                    <td style="text-align: right; font-weight: bold;">${{ total_value_selling }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
